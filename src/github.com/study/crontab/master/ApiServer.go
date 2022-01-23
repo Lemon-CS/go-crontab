@@ -199,6 +199,31 @@ ERR:
 
 }
 
+// 获取健康worker节点列表
+func handleWorkerList(resp http.ResponseWriter, req *http.Request) {
+
+	var (
+		workerArr []string
+		err       error
+		bytes     []byte
+	)
+	if workerArr, err = G_workerMgr.ListWorkers(); err != nil {
+		goto ERR
+	}
+
+	// 正常应答
+	if bytes, err = common.BuildResponse(0, "success", workerArr); err == nil {
+		resp.Write(bytes)
+	}
+	return
+
+ERR:
+	if bytes, err = common.BuildResponse(-1, err.Error(), nil); err == nil {
+		resp.Write(bytes)
+	}
+
+}
+
 // 初始化服务
 func InitApiServer() (err error) {
 	var (
@@ -216,7 +241,7 @@ func InitApiServer() (err error) {
 	mux.HandleFunc("/job/list", handleJobList)
 	mux.HandleFunc("/job/kill", handleJobKill)
 	mux.HandleFunc("/job/log", handleJobLog)
-	//mux.HandleFunc("/worker/list", handleWorkerList)
+	mux.HandleFunc("/worker/list", handleWorkerList)
 
 	//  /index.html
 
